@@ -458,6 +458,30 @@ THE SOFTWARE.
 	#define TERM_Mode				 GPIO_MODE_OUTPUT_PP
 	#define TERM_Active_High		 1
 
+/*************** STM32G431 ***************/
+
+#elif defined(BOARD_CANable2_MKS)
+	#define USBD_PRODUCT_STRING_FS	 "CANable2-MKS gs_usb"
+	#define USBD_MANUFACTURER_STRING "CANable2-MKS"
+	#define DFU_INTERFACE_STRING_FS	 "CANable2-MKS firmware upgrade interface"
+
+	#define TIM2_CLOCK_SPEED		 160000000
+
+	#define CAN_INTERFACE			 FDCAN1
+	#define CAN_CLOCK_SPEED			 80000000
+	#define NUM_CAN_CHANNEL			 1
+	#define CONFIG_CANFD			 1
+
+	#define LEDRX_GPIO_Port			 GPIOA
+	#define LEDRX_Pin				 GPIO_PIN_0
+	#define LEDRX_Mode				 GPIO_MODE_OUTPUT_OD
+	#define LEDRX_Active_High		 0
+
+	#define LEDTX_GPIO_Port			 GPIOA
+	#define LEDTX_Pin				 GPIO_PIN_15
+	#define LEDTX_Mode				 GPIO_MODE_OUTPUT_OD
+	#define LEDTX_Active_High		 0
+
 #else
 	#error please define BOARD
 #endif
