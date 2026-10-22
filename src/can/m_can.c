@@ -36,6 +36,8 @@
 
 #define M_CAN_SYNC_BUS_TIMEOUT_MS 100
 
+#define M_CAN_PSR_READ_RETRIES	  10
+
 const struct gs_device_bt_const CAN_btconst = {
 	.feature =
 		GS_CAN_FEATURE_LISTEN_ONLY |
@@ -341,6 +343,20 @@ void can_drv_read_reg_status(struct can_channel *channel)
 {
 	channel->reg_status.ecr = channel->channel.Instance->ECR;
 	channel->reg_status.psr = channel->channel.Instance->PSR;  /* DLEC and LEC are clear on read */
+
+	/*
+	 * The reset of LEC and DLEC on read seems to happen with a slight
+	 * delay. Read PSR again until both have been reset to prevent
+	 * double reports. Retries are limited, as continuous bus errors
+	 * may set them again before the reset is observed.
+	 */
+	for (unsigned int i = 0; i < M_CAN_PSR_READ_RETRIES; i++) {
+		const uint32_t reg_psr = channel->channel.Instance->PSR;
+
+		if (!can_is_lec_error(FIELD_GET(FDCAN_PSR_LEC, reg_psr)) &&
+			!can_is_lec_error(FIELD_GET(FDCAN_PSR_DLEC, reg_psr)))
+			break;
+	}
 }
 
 bool can_drv_handle_bus_error(const struct can_channel *channel, struct gs_host_frame *frame)
