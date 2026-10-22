@@ -97,6 +97,18 @@ void device_sysclock_config(void) {
 	PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
 	HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
 
+	/* Trim HSI48 to the USB SOF */
+	__HAL_RCC_CRS_CLK_ENABLE();
+	RCC_CRSInitTypeDef RCC_CRSInitStruct = {
+		.Prescaler = RCC_CRS_SYNC_DIV1,
+		.Source = RCC_CRS_SYNC_SOURCE_USB,
+		.Polarity = RCC_CRS_SYNC_POLARITY_RISING,
+		.ReloadValue = __HAL_RCC_CRS_RELOADVALUE_CALCULATE(48000000, 1000),
+		.ErrorLimitValue = RCC_CRS_ERRORLIMIT_DEFAULT,
+		.HSI48CalibrationValue = RCC_CRS_HSI48CALIBRATION_DEFAULT,
+	};
+	HAL_RCCEx_CRSConfig(&RCC_CRSInitStruct);
+
 	HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
 	HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
